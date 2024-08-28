@@ -1,0 +1,6 @@
+pandas
+pydantic
+pydantic-settings
+numpy
+pycot-reports
+requests
