@@ -1,20 +1,20 @@
 from enum import Enum
 
-import numpy as np
+import pandas
 from pycot.reports import CommitmentsOfTraders
 
 
-def print_all_contract_names():
-    contracts: np.ndarray = cot.list_available_contracts()
-    for contract in contracts:
-        print(contract)
-
-
 class Market(Enum):
+    """
+    A Market is simply any asset that is reported in the COT reports
+    """
     ...
 
 
 class CurrencyMarket(Market):
+    """
+    Currencies that are reported in the COT reports
+    """
     AUD = dict(
         contract_name="AUSTRALIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE",
         name="AUSTRALIAN DOLLAR",
@@ -58,6 +58,9 @@ class CurrencyMarket(Market):
 
 
 class CryptoMarket(Market):
+    """
+    CryptoCurrencies that are reported in the COT reports
+    """
     BTC = dict(
         contract_name="BITCOIN - CHICAGO MERCANTILE EXCHANGE",
         name="BITCOIN",
@@ -66,10 +69,16 @@ class CryptoMarket(Market):
 
 
 class IndicesMarket(Market):
+    """
+    Indices That are reported in the COT reports
+    """
     ...
 
 
 class CommodityMarket(Market):
+    """
+    Commodities that are reported in the COT reports
+    """
     GOLD = dict(
         contract_name="GOLD - COMMODITY EXCHANGE INC",
         name="GOLD",
@@ -87,19 +96,32 @@ class CommodityMarket(Market):
     )
 
 
+class ReportType(Enum):
+    """
+    Types of the COT report that can be extracted.
+    """
+    LEGACY_FUTURES_ONLY = "legacy_fut"
+    DISAGGREGATED_FUTURES_ONLY = "disaggregated_fut"
+    TRADERS_IN_FINANCIAL_FUTURES = "traders_in_financial_futures_fut"
+
+
 class CotReportsHandler:
     """
     This class is responsible for handling various operations related to COT reports.
     Such operations include downloading, processing, and possibly analyzing the reports.
     """
 
-    def __init__(self) -> None:
-        self.cot: CommitmentsOfTraders = CommitmentsOfTraders(report_type="legacy_fut")
+    def __init__(self, report_type: ReportType = ReportType.LEGACY_FUTURES_ONLY) -> None:
+        self._cot: CommitmentsOfTraders = CommitmentsOfTraders(report_type=report_type.value)
 
+    def get_market_reports(self, market: Market) -> pandas.DataFrame:
+        """
+        Returns years of COT report of the given market.
+        Args:
+            market (Market): A Market is simply any asset that is reported in the COT reports.
 
-if __name__ == '__main__':
-    cot = CommitmentsOfTraders(report_type="legacy_fut")
-    contract_names = (CurrencyMarket.AUD.value["contract_name"], CurrencyMarket.EUR.value["contract_name"])
-    df = cot.report(contract_names)
-    df.to_csv("../../cot-reports.csv")
-
+        Returns:
+            pandas.DataFrame: A pandas dataframe of the market COT report.
+        """
+        contract_name: str = market.value["contract_name"]
+        return self._cot.report(contract_name)
