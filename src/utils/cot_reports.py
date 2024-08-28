@@ -99,6 +99,7 @@ class CotReportsHandler:
 
 if __name__ == '__main__':
     cot = CommitmentsOfTraders(report_type="legacy_fut")
-    contract_names = ("AUSTRALIAN DOLLAR", "EURO FX")
-    print(cot.report(contract_names).head())
+    contract_names = (CurrencyMarket.AUD.value["contract_name"], CurrencyMarket.EUR.value["contract_name"])
+    df = cot.report(contract_names)
+    df.to_csv("../../cot-reports.csv")
 
